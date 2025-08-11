@@ -1,2 +1,0 @@
-chunks.pkl filter=lfs diff=lfs merge=lfs -text
-faiss_index filter=lfs diff=lfs merge=lfs -text
