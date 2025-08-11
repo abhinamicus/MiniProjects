@@ -30,6 +30,10 @@ st.markdown(
         position: relative;
         left: 0 !important;
     }
+    /* Hide 'Press Enter to submit form' */
+    .stForm .stMarkdown {
+        display: none;    
+    }
     </style>
     """,
     unsafe_allow_html=True
