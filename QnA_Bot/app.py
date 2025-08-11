@@ -21,7 +21,7 @@ try:
     embedding_azure_key = os.getenv("AZURE_OPENAI_EMBEDDING_KEY")
     deployment = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT")
     model = os.getenv("AZURE_OPENAI_EMBEDDING_MODEL")
-    pdf_dir_path = os.getenv("PDF_DIRECTORY_PATH", "pdfs")  # default to 'pdfs' folder
+    pdf_dir_path = os.path.join(os.path.dirname(__file__), "pdfs")
 
     embeddings = AzureOpenAIEmbeddings(
         azure_endpoint=embedding_azure_endpoint,
@@ -65,7 +65,7 @@ try:
 
     # --- Streamlit UI ---
     st.title("Azure PDF Q&A Bot")
-    user_question = st.text_input("Ask a question about your documents:")
+    user_question = st.text_input("Ask a question about Radiohead:")
 
     if user_question:
         results = db.similarity_search(user_question, k=5)
