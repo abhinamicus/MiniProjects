@@ -88,25 +88,25 @@ try:
         system_prompt = (
             "You are an assistant that answers questions based on the provided context. "
             "If the answer is not in the context, say you don't know."
-    )
-    user_prompt = (
-        f"Context:\n{context}\n\n"
-        f"Question: {user_question}\n"
-        "Answer:"
-    )
-    with st.spinner("Thinking..."):
-        response = openai.chat.completions.create(
-            model=gpt_deployment,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.2,
-            max_tokens=512
         )
-        answer = response.choices[0].message.content
-    st.markdown("**Answer:**")
-    st.write(answer)
+        user_prompt = (
+            f"Context:\n{context}\n\n"
+            f"Question: {user_question}\n"
+            "Answer:"
+        )
+        with st.spinner("Thinking..."):
+            response = openai.chat.completions.create(
+                model=gpt_deployment,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.2,
+                max_tokens=512
+            )
+            answer = response.choices[0].message.content
+        st.markdown("**Answer:**")
+        st.write(answer)
 
 except Exception as e:
     st.error(f"An error occurred: {e}")
