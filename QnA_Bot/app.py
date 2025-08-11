@@ -29,22 +29,34 @@ st.markdown(
         box-shadow: 2px 2px 16px rgba(0,0,0,0.08);
         position: relative;
         left: 0 !important;
-        align-items: flex-start !important;
-        justify-content: flex-start !important;
-        display: flex !important;
-        flex-direction: column !important;
+        display: block !important;
     }
-    /* Left-align the form and its contents */
-    .stForm, .stForm form, .stForm .stTextInputContainer, .stForm input, .stForm button {
+    /* Aggressively left-align all forms and their parents */
+    section[data-testid="stSidebar"], .stForm, .stForm form, .stForm .stTextInputContainer, .stForm input, .stForm button {
         align-items: flex-start !important;
         justify-content: flex-start !important;
         text-align: left !important;
         margin-left: 0 !important;
         width: 100% !important;
+        display: block !important;
     }
     /* Hide 'Press Enter to submit form' in all possible locations */
     .stForm .stMarkdown, .stForm label[data-testid="stMarkdownContainer"], .stForm div[role="alert"] {
         display: none !important;
+    }
+    /* Hide 'Press Enter to submit form' in all possible locations */
+    .stForm .stMarkdown, .stForm label[data-testid="stMarkdownContainer"], .stForm div[role="alert"] {
+        display: none !important;
+    }
+    .answer-box {
+        background: rgba(30, 30, 30, 0.85);
+        color: #fff !important;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+        word-break: break-word;    
     }
     </style>
     """,
@@ -148,7 +160,7 @@ try:
             )
             answer = response.choices[0].message.content
         st.markdown("**Answer:**")
-        st.write(answer)
+        st.markdown(f'<div class="answer-box">{answer}</div>', unsafe_allow_html=True)
 
 except Exception as e:
     st.error(f"An error occurred: {e}")
