@@ -18,10 +18,19 @@ st.markdown(
         background-repeat: no-repeat;
         background-attachment: fixed;
     }
+    /* Left-align the main container */
+    .main .block-container {
+        margin-left: 0rem;
+        margin-right: auto;
+        max-width: 600px;
+        padding-left: 2rem;
+        background: rgba(255,255,255,0.7); /* optional: white background with transparency for readability */
+        border-radius: 10px;
+    }
     </style>
     """,
     unsafe_allow_html=True
-)
+)    
 
 try:
     load_dotenv()
@@ -90,10 +99,10 @@ try:
 
     # --- Streamlit UI ---
     
-    st.title("Azure PDF Q&A Bot")
+    st.title("RadioBot")
 
     with st.form("question_form"):
-        user_question = st.text_input("Ask a question about Radiohead")
+        user_question = st.text_input("Ask something Radiohead")
         submitted = st.form_submit_button("Come on!")
 
     if submitted and user_question:
