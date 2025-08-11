@@ -22,17 +22,21 @@ st.markdown(
     .main .block-container {
         margin-left: 0 !important;
         margin-right: auto !important;
-        max-width: 600px;
-        padding-left: 2rem;
+        max-width: 600px !important;
+        padding-left: 2rem !important;
         background: rgba(255,255,255,0.7);
         border-radius: 10px;
         box-shadow: 2px 2px 16px rgba(0,0,0,0.08);
         position: relative;
         left: 0 !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
     /* Hide 'Press Enter to submit form' */
     .stForm .stMarkdown {
-        display: none;    
+        display: none !important;    
     }
     </style>
     """,
