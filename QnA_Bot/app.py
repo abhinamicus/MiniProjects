@@ -29,23 +29,22 @@ st.markdown(
         box-shadow: 2px 2px 16px rgba(0,0,0,0.08);
         position: relative;
         left: 0 !important;
-        /* Remove centering from flexbox */
         align-items: flex-start !important;
         justify-content: flex-start !important;
         display: flex !important;
         flex-direction: column !important;
     }
-    /* Force the form and its input/button to the left */
-    form {
+    /* Left-align the form and its contents */
+    .stForm, .stForm form, .stForm .stTextInputContainer, .stForm input, .stForm button {
         align-items: flex-start !important;
         justify-content: flex-start !important;
-        display: flex !important;
-        flex-direction: column !important;
+        text-align: left !important;
+        margin-left: 0 !important;
         width: 100% !important;
     }
     /* Hide 'Press Enter to submit form' in all possible locations */
-    .stForm .stMarkdown, .stForm label[data-testid="stMarkdownContainer"] {
-        display: none !important;    
+    .stForm .stMarkdown, .stForm label[data-testid="stMarkdownContainer"], .stForm div[role="alert"] {
+        display: none !important;
     }
     </style>
     """,
