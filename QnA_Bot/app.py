@@ -1,4 +1,5 @@
 import os
+import time
 import pickle
 import streamlit as st
 import openai
@@ -53,7 +54,17 @@ try:
         embeddings_list = []
         for i in range(0, len(chunks), batch_size):
             batch = [chunk.page_content for chunk in chunks[i:i+batch_size]]
-            embeddings_list.extend(embeddings.embed_documents(batch))
+            success = False
+            while not success:
+                try:
+                    embeddings_list.extend(embeddings.embed_documents(batch))
+                    success = True
+                except Exception as e:
+                    if "429" in str(e):
+                        st.warning("Rate limit hit. Waiting 5 seconds before retrying...")
+                        time.sleep(5)
+                    else:
+                        raise e
         with open("chunks.pkl", "wb") as f:
             pickle.dump(chunks, f)
         db = FAISS.from_embeddings(
