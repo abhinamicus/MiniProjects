@@ -18,7 +18,6 @@ st.markdown(
         background-repeat: no-repeat;
         background-attachment: fixed;
     }
-    /* Force the main container to the left */
     .main .block-container {
         margin-left: 0 !important;
         margin-right: auto !important;
@@ -33,7 +32,7 @@ st.markdown(
         flex-direction: column !important;
         align-items: flex-start !important;
     }
-    /* Force the form and its contents to the left */
+    /* Left-align the form and its contents */
     .stForm, .stForm form {
         width: 100% !important;
         align-items: flex-start !important;
