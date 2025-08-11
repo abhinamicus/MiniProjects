@@ -13,7 +13,7 @@ st.markdown(
     """
     <style>
     .stApp {
-        background-image: url('https://in.pinterest.com/pin/90564642499393228/');
+        background-image: url('https://thelabel.co.nz/wp-content/uploads/2019/06/Screen-Shot-2019-06-27-at-12.23.40-PM.png');
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
@@ -93,7 +93,7 @@ try:
     st.title("Azure PDF Q&A Bot")
 
     with st.form("question_form"):
-        user_question = st.text_input("Ask a question about your documents:")
+        user_question = st.text_input("Ask a question about Radiohead")
         submitted = st.form_submit_button("Come on!")
 
     if submitted and user_question:
