@@ -9,6 +9,20 @@ from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores.faiss import FAISS
 
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-image: url('https://in.pinterest.com/pin/90564642499393228/');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 try:
     load_dotenv()
 
