@@ -14,50 +14,11 @@ st.markdown(
     <style>
     .stApp {
         background-image: url('https://thelabel.co.nz/wp-content/uploads/2019/06/Screen-Shot-2019-06-27-at-12.23.40-PM.png');
-        background-size: cover;
+        background-size: 100% 100%;
         background-repeat: no-repeat;
+        background-position: center center;
         background-attachment: fixed;
         min-height: 100vh;
-    }
-    .main .block-container {
-        margin-left: 0 !important;
-        margin-right: auto !important;
-        max-width: 600px !important;
-        width: 100vw !important;
-        padding-left: 2rem !important;
-        background: rgba(255,255,255,0.7);
-        border-radius: 10px;
-        box-shadow: 2px 2px 16px rgba(0,0,0,0.08);
-        position: relative;
-        left: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-    }
-    /* Make the container responsive on mobile */
-    @media (max-width: 700px) {
-        .main .block-container {
-            max-width: 100vw !important;
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
-        }
-    }
-    /* Left-align the form and its contents */
-    .stForm, .stForm form {
-        width: 100% !important;
-        align-items: flex-start !important;
-        justify-content: flex-start !important;
-        display: flex !important;
-        flex-direction: column !important;
-        text-align: left !important;
-    }
-    .stForm .stTextInputContainer, .stForm input, .stForm button {
-        align-self: flex-start !important;
-        text-align: left !important;
-    }
-    /* Hide 'Press Enter to submit form' in all possible locations */
-    .stForm .stMarkdown, .stForm label[data-testid="stMarkdownContainer"], .stForm div[role="alert"] {
-        display: none !important;
     }
     </style>
     """,
