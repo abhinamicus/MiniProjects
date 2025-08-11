@@ -18,14 +18,17 @@ st.markdown(
         background-repeat: no-repeat;
         background-attachment: fixed;
     }
-    /* Left-align the main container */
+    /* Force the main container to the left */
     .main .block-container {
-        margin-left: 0rem;
-        margin-right: auto;
+        margin-left: 0 !important;
+        margin-right: auto !important;
         max-width: 600px;
         padding-left: 2rem;
-        background: rgba(255,255,255,0.7); /* optional: white background with transparency for readability */
+        background: rgba(255,255,255,0.7);
         border-radius: 10px;
+        box-shadow: 2px 2px 16px rgba(0,0,0,0.08);
+        position: relative;
+        left: 0 !important;
     }
     </style>
     """,
