@@ -80,7 +80,7 @@ try:
 
     with st.form("question_form"):
         user_question = st.text_input("Ask a question about your documents:")
-        submitted = st.form_submit_button("Submit")
+        submitted = st.form_submit_button("Come on!")
 
     if submitted and user_question:
         results = db.similarity_search(user_question, k=5)
