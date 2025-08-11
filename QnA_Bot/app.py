@@ -17,11 +17,13 @@ st.markdown(
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
+        min-height: 100vh;
     }
     .main .block-container {
         margin-left: 0 !important;
         margin-right: auto !important;
         max-width: 600px !important;
+        width: 100vw !important;
         padding-left: 2rem !important;
         background: rgba(255,255,255,0.7);
         border-radius: 10px;
@@ -31,6 +33,14 @@ st.markdown(
         display: flex !important;
         flex-direction: column !important;
         align-items: flex-start !important;
+    }
+    /* Make the container responsive on mobile */
+    @media (max-width: 700px) {
+        .main .block-container {
+            max-width: 100vw !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
     }
     /* Left-align the form and its contents */
     .stForm, .stForm form {
