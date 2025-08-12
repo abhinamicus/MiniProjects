@@ -13,7 +13,7 @@ load_dotenv()
 
 openai.api_base = os.getenv("AZURE_OPENAI_ENDPOINT")
 openai.api_type = "azure"
-# openai.api_base = os.getenv("AZURE_OPENAI_GPT_ENDPOINT")
+
 openai.api_version = "2023-05-15"
 openai.api_key = os.getenv("AZURE_OPENAI_GPT_KEY")
 gpt_deployment = os.getenv("AZURE_OPENAI_GPT_DEPLOYMENT")
@@ -91,8 +91,15 @@ else:
     )
     db.save_local("faiss_index")
 
-def ask_question_loop():
+def ask_question_loop(window_size=5):
     print("\n🔎 Q&A Bot is ready! Type your question (or 'exit' to quit):")
+    # Initialize conversation history with the system prompt
+    conversation_history = [
+        {"role": "system", "content": (
+            "You are an assistant that answers questions based on the provided context. "
+            "If the answer is not in the context, say you don't know."
+        )}
+    ]
     while True:
         user_question = input("You: ")
         if user_question.lower() in ["exit", "quit"]:
@@ -103,24 +110,24 @@ def ask_question_loop():
         results = db.similarity_search(user_question, k=5)
         context = "\n\n".join([doc.page_content for doc in results])
 
-        # Compose the prompt for GPT
-        system_prompt = (
-            "You are an assistant that answers questions based on the provided context. "
-            "If the answer is not in the context, say you don't know."
-        )
+        # Add user message with context to conversation history
         user_prompt = (
             f"Context:\n{context}\n\n"
             f"Question: {user_question}\n"
             "Answer:"
         )
+        conversation_history.append({"role": "user", "content": user_prompt})
 
-        # Call Azure OpenAI GPT (new API style for openai>=1.0.0)
+        # Keep only the last N user+assistant turns, plus the system prompt
+        # Each turn is 2 messages (user, assistant), so window_size*2 + 1 (system)
+        if len(conversation_history) > window_size * 2 + 1:
+            # Always keep the system prompt at index 0
+            conversation_history = [conversation_history[0]] + conversation_history[-window_size*2:]
+
+        # Call Azure OpenAI GPT with conversation history
         response = openai.chat.completions.create(
             model=gpt_deployment,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
+            messages=conversation_history,
             temperature=0.2,
             max_tokens=512
         )
@@ -128,4 +135,7 @@ def ask_question_loop():
         print("\nBot:", answer)
         print("-" * 60)
 
-ask_question_loop()
+        # Add assistant's reply to conversation history
+        conversation_history.append({"role": "assistant", "content": answer})
+
+ask_question_loop(window_size=7)  # You can change window_size as needed
