@@ -5,3 +5,4 @@ langchain
 streamlit
 python-dotenv
 langchain_community
+pypdf
