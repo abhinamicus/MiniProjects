@@ -15,6 +15,7 @@ import asyncio
 import httpx
 import streamlit as st
 import requests
+import tempfile
 from dotenv import load_dotenv
 from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -133,6 +134,32 @@ with st.form("question_form", clear_on_submit=True):
     user_question = st.text_input("Ask Anything Radiohead", max_chars=300)
     submit = st.form_submit_button("Ask")
 
+# --- File upload ---
+uploaded_files = st.file_uploader(
+    "Upload your Radiohead PDF files", type=["pdf"], accept_multiple_files=True
+)
+
+# --- Load chunks from uploaded files ---
+def load_chunks_from_uploads(uploaded_files):
+    if not uploaded_files:
+        st.warning("Please upload at least one PDF file.")
+        return []
+    temp_dir = tempfile.mkdtemp()
+    paths = []
+    for uploaded_file in uploaded_files:
+        file_path = os.path.join(temp_dir, uploaded_file.name)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.read())
+        paths.append(file_path)
+    # Use PyPDFLoader directly on each file
+    chunks = []
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+    for path in paths:
+        loader = PyPDFLoader(path)
+        pages = loader.load()
+        chunks.extend(text_splitter.split_documents(pages))
+    return chunks
+
 # --- Main logic ---
 if submit and user_question:
     st.session_state.history.append({"role": "user", "content": user_question})
@@ -170,6 +197,12 @@ if submit and user_question:
     st.markdown(f"<div style='background:#222;color:#fff;padding:1em;border-radius:8px'>{answer}</div>", unsafe_allow_html=True)
     st.markdown(f"**Current Time:** {time_result}")
     st.markdown(f"**Currency Rate:** {currency_result}")
+
+# --- Load chunks from uploaded files if any ---
+if uploaded_files:
+    chunks = load_chunks_from_uploads(uploaded_files)
+else:
+    chunks = []
 
 # --- Display conversation history ---
 if st.session_state.history:
