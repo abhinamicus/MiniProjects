@@ -1,1 +1,5 @@
 httpx
+httpx
+requests
+langchain
+streamlit
