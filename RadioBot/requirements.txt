@@ -3,3 +3,4 @@ httpx
 requests
 langchain
 streamlit
+python-dotenv
