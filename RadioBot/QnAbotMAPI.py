@@ -58,34 +58,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- PDF Directory ---
-pdf_dir = "B:\\Python\\pdfs"  # or your actual folder path
-
-# --- Load or create document chunks ---
-@st.cache_resource(show_spinner="Loading Radiohead knowledge base...")
-def load_chunks(pdf_dir):
-    if os.path.exists("chunks.pkl") and os.path.exists("chunks_dir.txt"):
-        with open("chunks_dir.txt", "r") as f:
-            cached_dir = f.read().strip()
-        if cached_dir == pdf_dir and os.path.exists("chunks.pkl"):
-            with open("chunks.pkl", "rb") as f:
-                chunks = pickle.load(f)
-            return chunks
-    loader = DirectoryLoader(
-        path=pdf_dir,
-        glob="**/*.pdf",
-        loader_cls=PyPDFLoader
-    )
-    pages = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
-    chunks = text_splitter.split_documents(pages)
-    with open("chunks.pkl", "wb") as f:
-        pickle.dump(chunks, f)
-    with open("chunks_dir.txt", "w") as f:
-        f.write(pdf_dir)
-    return chunks
-
-chunks = load_chunks(pdf_dir)
 
 # --- Async API calls ---
 async def fetch_time(client):
@@ -139,7 +111,6 @@ uploaded_files = st.file_uploader(
     "Upload your Radiohead PDF files", type=["pdf"], accept_multiple_files=True
 )
 
-# --- Load chunks from uploaded files ---
 def load_chunks_from_uploads(uploaded_files):
     if not uploaded_files:
         st.warning("Please upload at least one PDF file.")
@@ -159,6 +130,11 @@ def load_chunks_from_uploads(uploaded_files):
         pages = loader.load()
         chunks.extend(text_splitter.split_documents(pages))
     return chunks
+
+if uploaded_files:
+    chunks = load_chunks_from_uploads(uploaded_files)
+else:
+    chunks = []
 
 # --- Main logic ---
 if submit and user_question:
@@ -197,12 +173,6 @@ if submit and user_question:
     st.markdown(f"<div style='background:#222;color:#fff;padding:1em;border-radius:8px'>{answer}</div>", unsafe_allow_html=True)
     st.markdown(f"**Current Time:** {time_result}")
     st.markdown(f"**Currency Rate:** {currency_result}")
-
-# --- Load chunks from uploaded files if any ---
-if uploaded_files:
-    chunks = load_chunks_from_uploads(uploaded_files)
-else:
-    chunks = []
 
 # --- Display conversation history ---
 if st.session_state.history:
