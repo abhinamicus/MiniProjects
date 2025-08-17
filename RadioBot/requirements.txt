@@ -1,10 +1,9 @@
-httpx
+streamlit
+python-dotenv
 httpx
 requests
 langchain
-streamlit
-python-dotenv
 langchain_community
-pypdf
 sentence-transformers
-faiss
+numpy
+faiss-cpu
