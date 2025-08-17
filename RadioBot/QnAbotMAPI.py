@@ -4,7 +4,7 @@ A Q&A bot with:
 - User interface (Streamlit)
 - Conversational memory
 - Async concurrent calls (asyncio)
-- Simultaneous API calls (e.g., current time, currency rates)
+- Simultaneous API calls (e.g., current time)
 - Flawless error handling
 - Security best practices
 """
@@ -17,20 +17,19 @@ import streamlit as st
 import requests
 import tempfile
 from dotenv import load_dotenv
-from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # --- Load environment variables securely ---
 load_dotenv()
 TIME_API_URL = os.getenv("TIME_API_URL", "https://worldtimeapi.org/api/timezone/Etc/UTC")
-CURRENCY_API_URL = os.getenv("CURRENCY_API_URL", "https://api.exchangerate.host/latest?base=USD")
 HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
 HF_QA_URL = "https://api-inference.huggingface.co/models/deepset/roberta-base-squad2"
 
 # --- Streamlit UI ---
 st.set_page_config(page_title="RadioBot", layout="wide")
 st.title("RadioBot")
-st.markdown("Ask Anything Radiohead. Current time and currency rates also if you want to")
+st.markdown("Ask Anything Radiohead. Current time also if you want to")
 
 # --- Background Image (full coverage, responsive for mobile) ---
 st.markdown(
@@ -58,7 +57,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
 # --- Async API calls ---
 async def fetch_time(client):
     try:
@@ -69,22 +67,10 @@ async def fetch_time(client):
     except Exception as e:
         return f"Time API error: {e}"
 
-async def fetch_currency(client):
-    try:
-        resp = await client.get(CURRENCY_API_URL, timeout=10)
-        resp.raise_for_status()
-        data = resp.json()
-        usd_to_eur = data.get("rates", {}).get("EUR")
-        return f"USD to EUR: {usd_to_eur}" if usd_to_eur else "Currency data unavailable"
-    except Exception as e:
-        return f"Currency API error: {e}"
-
 async def get_external_info():
     async with httpx.AsyncClient() as client:
-        time_task = fetch_time(client)
-        currency_task = fetch_currency(client)
-        time_result, currency_result = await asyncio.gather(time_task, currency_task)
-        return time_result, currency_result
+        time_result = await fetch_time(client)
+        return time_result
 
 # --- Hugging Face QA function ---
 def hf_qa(question, context):
@@ -157,12 +143,12 @@ if submit and user_question:
         st.error(f"Error searching documents: {e}")
         context = ""
 
-    # Async API calls (time, currency)
-    with st.spinner("Thinking and fetching external info..."):
+    # Async API call (time)
+    with st.spinner("Clocking..."):
         try:
-            time_result, currency_result = asyncio.run(get_external_info())
+            time_result = asyncio.run(get_external_info())
         except Exception as e:
-            time_result, currency_result = "Time API error", "Currency API error"
+            time_result = "Time API error"
 
         # Hugging Face QA
         answer = hf_qa(user_question, context) if context else "Sorry, I couldn't find relevant information in the documents."
@@ -172,7 +158,6 @@ if submit and user_question:
     st.markdown("**Answer:**")
     st.markdown(f"<div style='background:#222;color:#fff;padding:1em;border-radius:8px'>{answer}</div>", unsafe_allow_html=True)
     st.markdown(f"**Current Time:** {time_result}")
-    st.markdown(f"**Currency Rate:** {currency_result}")
 
 # --- Display conversation history ---
 if st.session_state.history:
