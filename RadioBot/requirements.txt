@@ -7,3 +7,4 @@ python-dotenv
 langchain_community
 pypdf
 sentence-transformers
+faiss
