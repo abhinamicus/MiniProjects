@@ -110,9 +110,6 @@ uploaded_files = st.file_uploader(
 )
 
 def load_chunks_from_uploads(uploaded_files):
-    if not uploaded_files:
-        st.warning("Please upload at least one PDF file.")
-        return []
     temp_dir = tempfile.mkdtemp()
     paths = []
     for uploaded_file in uploaded_files:
@@ -120,7 +117,6 @@ def load_chunks_from_uploads(uploaded_files):
         with open(file_path, "wb") as f:
             f.write(uploaded_file.read())
         paths.append(file_path)
-    # Use PyPDFLoader directly on each file
     chunks = []
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
     for path in paths:
@@ -129,58 +125,68 @@ def load_chunks_from_uploads(uploaded_files):
         chunks.extend(text_splitter.split_documents(pages))
     return chunks
 
+# --- Embedding and FAISS index creation ---
 if uploaded_files:
     chunks = load_chunks_from_uploads(uploaded_files)
-else:
-    chunks = []
-
-# --- SentenceTransformer model for embedding ---
-embedder = SentenceTransformer('all-MiniLM-L6-v2')
-
-# --- FAISS index for efficient similarity search ---
-if chunks:
-    # Embed chunks
     texts = [chunk.page_content for chunk in chunks]
+    embedder = SentenceTransformer('all-MiniLM-L6-v2')
     embeddings = embedder.encode(texts, convert_to_numpy=True)
-
-    # Build FAISS index
     dimension = embeddings.shape[1]
     index = faiss.IndexFlatL2(dimension)
     index.add(embeddings)
+    # Store in session state
+    st.session_state['texts'] = texts
+    st.session_state['index'] = index
+    st.session_state['embedder'] = embedder
+else:
+    chunks = []
+    st.session_state['texts'] = []
+    st.session_state['index'] = None
+    st.session_state['embedder'] = None
 
-#  --- Query function to get top K chunks ---
 def get_top_k_chunks(query, k=5):
+    if not st.session_state.get('index') or not st.session_state.get('texts'):
+        return []
+    embedder = st.session_state['embedder']
+    index = st.session_state['index']
+    texts = st.session_state['texts']
     query_embedding = embedder.encode([query], convert_to_numpy=True)
     D, I = index.search(query_embedding, k)
     return [texts[i] for i in I[0]]
 
 # --- Main logic ---
 if submit and user_question:
-    st.session_state.history.append({"role": "user", "content": user_question})
-
-    # Retrieve relevant context from PDFs
-    try:
-        top_contexts = get_top_k_chunks(user_question, k=5)
-        context = "\n\n".join(top_contexts)
-    except Exception as e:
-        st.error(f"Error searching documents: {e}")
-        context = ""
-
-    # Async API call (time)
-    with st.spinner("Clocking..."):
+    if not uploaded_files or not st.session_state.get('index'):
+        st.warning("Please upload PDF files before asking a question.")
+    else:
+        st.session_state.history.append({"role": "user", "content": user_question})
         try:
-            time_result = asyncio.run(get_external_info())
+            top_contexts = get_top_k_chunks(user_question, k=5)
+            context = "\n\n".join(top_contexts)
         except Exception as e:
-            time_result = "Time API error"
+            st.error(f"Error searching documents: {e}")
+            context = ""
 
-        # Hugging Face QA with anti-hallucination prompt
-        answer = hf_qa(user_question, context) if context else "Sorry, I couldn't find relevant information in the documents."
+        with st.spinner("Clocking..."):
+            try:
+                time_result = asyncio.run(get_external_info())
+            except Exception as e:
+                time_result = "Time API error"
 
-    st.session_state.history.append({"role": "assistant", "content": answer})
+            answer = (
+                hf_qa(user_question, context)
+                if context.strip()
+                else "I don't know. The answer is not in the provided documents."
+            )
 
-    st.markdown("**Answer:**")
-    st.markdown(f"<div style='background:#222;color:#fff;padding:1em;border-radius:8px'>{answer}</div>", unsafe_allow_html=True)
-    st.markdown(f"**Current Time:** {time_result}")
+        st.session_state.history.append({"role": "assistant", "content": answer})
+
+        st.markdown("**Answer:**")
+        st.markdown(f"<div style='background:#222;color:#fff;padding:1em;border-radius:8px'>{answer}</div>", unsafe_allow_html=True)
+        st.markdown(f"**Current Time:** {time_result}")
+
+        with st.expander("Show retrieved context"):
+            st.write(context if context else "No relevant context found.")
 
 # --- Display conversation history ---
 if st.session_state.history:
