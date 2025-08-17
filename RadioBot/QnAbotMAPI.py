@@ -7,6 +7,7 @@ A Q&A bot with:
 - Simultaneous API calls (e.g., current time)
 - Flawless error handling
 - Security best practices
+- Reduced hallucination by instructing the model to only answer from context
 """
 
 import os
@@ -72,10 +73,19 @@ async def get_external_info():
         time_result = await fetch_time(client)
         return time_result
 
-# --- Hugging Face QA function ---
+# --- Hugging Face QA function with anti-hallucination prompt ---
 def hf_qa(question, context):
     headers = {"Authorization": f"Bearer {HUGGINGFACE_API_TOKEN}"}
-    payload = {"inputs": {"question": question, "context": context}}
+    system_prompt = (
+        "Answer the question only using the provided context. "
+        "If the answer is not in the context, say you don't know."
+    )
+    payload = {
+        "inputs": {
+            "question": f"{system_prompt}\n\n{question}",
+            "context": context
+        }
+    }
     try:
         response = requests.post(HF_QA_URL, headers=headers, json=payload, timeout=30)
         data = response.json()
@@ -150,7 +160,7 @@ if submit and user_question:
         except Exception as e:
             time_result = "Time API error"
 
-        # Hugging Face QA
+        # Hugging Face QA with anti-hallucination prompt
         answer = hf_qa(user_question, context) if context else "Sorry, I couldn't find relevant information in the documents."
 
     st.session_state.history.append({"role": "assistant", "content": answer})
