@@ -102,7 +102,7 @@ if "history" not in st.session_state:
 # --- User input ---
 with st.form("question_form", clear_on_submit=True):
     user_question = st.text_input("Ask Anything Radiohead", max_chars=300)
-    submit = st.form_submit_button("Ask")
+    submit = st.form_submit_button("Come on!")
 
 # --- File upload ---
 uploaded_files = st.file_uploader(
