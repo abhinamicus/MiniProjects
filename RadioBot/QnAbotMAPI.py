@@ -20,6 +20,9 @@ import tempfile
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from sentence_transformers import SentenceTransformer
+import numpy as np
+import faiss
 
 # --- Load environment variables securely ---
 load_dotenv()
@@ -132,22 +135,33 @@ if uploaded_files:
 else:
     chunks = []
 
+# --- SentenceTransformer model for embedding ---
+embedder = SentenceTransformer('all-MiniLM-L6-v2')
+
+# --- FAISS index for efficient similarity search ---
+if chunks:
+    # Embed chunks
+    texts = [chunk.page_content for chunk in chunks]
+    embeddings = embedder.encode(texts, convert_to_numpy=True)
+
+    # Build FAISS index
+    dimension = embeddings.shape[1]
+    index = faiss.IndexFlatL2(dimension)
+    index.add(embeddings)
+
+#  --- Query function to get top K chunks ---
+def get_top_k_chunks(query, k=5):
+    query_embedding = embedder.encode([query], convert_to_numpy=True)
+    D, I = index.search(query_embedding, k)
+    return [texts[i] for i in I[0]]
+
 # --- Main logic ---
 if submit and user_question:
     st.session_state.history.append({"role": "user", "content": user_question})
 
     # Retrieve relevant context from PDFs
     try:
-        # Simple keyword search for top 5 chunks
-        question_words = set(user_question.lower().split())
-        scored_chunks = []
-        for chunk in chunks:
-            text = chunk.page_content.lower()
-            score = sum(word in text for word in question_words)
-            if score > 0:
-                scored_chunks.append((score, chunk.page_content))
-        scored_chunks.sort(reverse=True)
-        top_contexts = [text for score, text in scored_chunks[:5]]
+        top_contexts = get_top_k_chunks(user_question, k=5)
         context = "\n\n".join(top_contexts)
     except Exception as e:
         st.error(f"Error searching documents: {e}")
