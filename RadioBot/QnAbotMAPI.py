@@ -33,7 +33,7 @@ HF_QA_URL = "https://api-inference.huggingface.co/models/deepset/roberta-base-sq
 # --- Streamlit UI ---
 st.set_page_config(page_title="RadioBot", layout="wide")
 st.title("RadioBot")
-st.markdown("Ask Anything Radiohead. Current time also if you want to")
+st.markdown("Ask Anything Radiohead.")
 
 # --- Background Image (full coverage, responsive for mobile) ---
 st.markdown(
