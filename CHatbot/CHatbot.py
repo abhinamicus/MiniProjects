@@ -55,7 +55,7 @@ def load_and_create_db():
             docs.extend(loader.load())
         # Create embeddings and vector database
         embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-        vectordb = Chroma.from_documents(docs, embeddings, persist_directory="db")
+        vectordb = Chroma.from_documents(docs, embeddings)
         vectordb.persist()
         return vectordb
     else:
