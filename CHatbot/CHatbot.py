@@ -45,7 +45,7 @@ def safe_run(func):
 
 def load_and_create_db():
     # Set your PDF directory path here
-    pdf_dir = r"B:\Python\pdfs"  # Change to your actual PDF directory
+    pdf_dir = r"pdfs"  # Change to your actual PDF directory
 
     docs = []
     if os.path.isdir(pdf_dir):
@@ -123,6 +123,14 @@ def main():
         except Exception as e:
             st.error(f"Chat error: {e}")
             st.write(e)
+
+    # Debug: List files and folders in the current directory
+    st.write("Current working directory:", os.getcwd())
+    st.write("Files and folders in cwd:", os.listdir())
+    if os.path.exists("pdfs"):
+        st.write("Files in 'pdfs':", os.listdir("pdfs"))
+    else:
+        st.write("'pdfs' folder does not exist.")
 
 if __name__ == "__main__":
     main()
