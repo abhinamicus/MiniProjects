@@ -63,7 +63,15 @@ def load_and_create_db():
 @safe_run
 def main():
     st.title("RadioBot")
-    set_bg("Thom.png")  # Place your image in the same folder
+    set_bg("Thom.png")
+
+    # Debug: List files and folders in the current directory BEFORE loading DB
+    st.write("Current working directory:", os.getcwd())
+    st.write("Files and folders in cwd:", os.listdir())
+    if os.path.exists("pdfs"):
+        st.write("Files in 'pdfs':", os.listdir("pdfs"))
+    else:
+        st.write("'pdfs' folder does not exist.")
 
     # Always create/load FAISS vector DB in memory (no Chroma, no persist)
     vectordb = load_and_create_db()
